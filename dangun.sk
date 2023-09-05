@@ -1,0 +1,112 @@
+on join:
+    apply weakness 1 to the player for 1 day
+
+on load:
+    set {executed} to false
+    set the gamerule naturalRegeneration of world "world" to false
+
+#음식들 효과
+on consume of potato:
+    add 1 to {humanity}
+    remove poison from player
+    apply poison 1 to player for 10 seconds
+    message "§e오 이런! 마늘은 §o§l구워 먹어야 §e제맛이랍니다!"
+    play sound "entity.item.break" with volume 4.0 to the player
+
+on consume of baked potato:
+    add 1 to {humanity}
+    apply health boost 1 to player for 30 seconds
+    message "§e군마늘을 드셨군요! 이제 여기다 딱 §o§l닭갈비 하나 §e먹어주면 그만한 저녁거리가 또 없죠!"
+    play sound "entity.experience_orb.pickup" with volume 4.0 to the player
+
+on consume of dried kelp:
+    add 1 to {humanity}
+    remove regeneration from player
+    apply regeneration 1 to player for 30 seconds
+    message "§e아오 쑥.. §o§l쓴내가 §e여기가지 풍겨오네요"
+    play sound "entity.experience_orb.pickup" with volume 4.0 to the player
+
+#인간 시스템
+on death of player:
+    set {humanity} to 0
+    make all players stop glowing
+
+every 1 tick:
+    if {humanity} is 63:
+        remove weakness from all players
+        if {executed} is false:
+            set {executed} to true
+            send action bar with text "§b§o§l%{humanity}%/63!!!" to all players
+            send title "§b와! 니 인간!" with subtitle "§b이제 §3§o신단수§b를 찾아 환웅의 봉인을 풀고 청혼하세요!" to all players for 7 seconds
+            play sound "minecraft:ui.toast.challenge_complete" with volume 4.0 to all players
+            apply levitation 3 to all players for 7 seconds
+            apply health boost 3 without particles to all players for a day
+            apply resistance 4 without particles to all players for 12 seconds
+            set the gamerule naturalRegeneration of world "world" to true
+            play huge explosion on all players
+            make all players glow rainbow fast
+            
+    else:
+        set {executed} to false
+        send action bar with text "인간 진행률 %{humanity}%/63" to all players
+
+#반달돌칼
+
+on right click holding netherite ingot:
+    make player shoot snowball with speed 1.7
+    set metadata value "SpecialSnowball" of shot projectile to true
+    play sound "item.trident.throw" with volume 4.0 to all players
+on damage:
+    if victim is a entity:
+        if "%damage cause%" is "projectile":
+            if metadata value "SpecialSnowball" of event-projectile is true:
+                set damage to 5
+                play electric spark on victim
+                play sound "entity.zombie.destroy_egg" with volume 4.0 to all players
+
+#환웅 봉인 해제
+on leftclick on light blue glazed terracotta holding a netherite sword:
+    set the block to air
+    play mob spawner flames at the block
+    play sound "block.respawn_anchor.set_spawn" with volume 4 to all players
+    wait 1.5 seconds
+    play sound "item.trident.thunder" with volume 4.0 to all players
+    apply darkness 2 to the player for a day
+    apply slowness 8 to the player for a day
+    wait 2.3 seconds
+    message "§d누가 내 잠을 깨웠는가.."
+    play sound "entity.experience_orb.pickup" with volume 4.0 for all players
+    wait 3 seconds
+    message "§d아, 거기 니 녀석이군"
+    play sound "entity.experience_orb.pickup" with volume 4.0 for all players
+    wait 3 seconds
+    message "§d어떤 용건이 있길래 내 봉인을 해제한거지?"
+    play sound "entity.experience_orb.pickup" with volume 4.0 for all players
+
+command /청혼:
+    trigger:
+        wait 1.7 seconds
+        message "§d잠시 기다려보게.."
+        play sound "entity.experience_orb.pickup" with volume 4.0 for all players
+        wait 3 seconds
+        message "§d응 니 청혼 §5거절 §dㅅㄱ"
+        play sound "entity.experience_orb.pickup" with volume 4.0 for all players
+        remove darkness from the player
+        summon a creeper 1.7 meters above the player
+
+#테스트용 명령어들
+command /63:
+    trigger:
+        set {humanity} to 63
+
+command /0:
+    trigger:
+        set {humanity} to 0
+
+command /글로우:
+    trigger:
+        make player glow rainbow fast
+
+command /글로우멈춰:
+    trigger:
+        make player stop glowing
